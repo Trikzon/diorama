@@ -1,2 +1,2 @@
 # diorama
-3D island generator using Wave Function Collapse
+3D island generator using Wave Function Collapse.
