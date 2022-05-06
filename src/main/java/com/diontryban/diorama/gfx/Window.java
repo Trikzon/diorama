@@ -1,13 +1,14 @@
 package com.diontryban.diorama.gfx;
 
 import org.lwjgl.Version;
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 public final class Window {
-    private static long glHandle;
+    private static long windowId;
 
     public static void init(int width, int height, String title) {
         System.out.println("LWJGL Version: " + Version.getVersion());
@@ -26,22 +27,22 @@ public final class Window {
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 
-        Window.glHandle = GLFW.glfwCreateWindow(width, height, title, 0, 0);
-        if (Window.glHandle == 0) {
+        Window.windowId = GLFW.glfwCreateWindow(width, height, title, 0, 0);
+        if (Window.windowId == 0) {
             throw new RuntimeException("Failed to create the GLFW window.");
         }
 
-        GLFW.glfwMakeContextCurrent(Window.glHandle);
+        GLFW.glfwMakeContextCurrent(Window.windowId);
         GLFW.glfwSwapInterval(1);
 
-        GLFW.glfwShowWindow(Window.glHandle);
+        GLFW.glfwShowWindow(Window.windowId);
 
         GL.createCapabilities();
         System.out.println("GL Version: " + GL11.glGetString(GL11.GL_VERSION));
     }
 
     public static void endFrame() {
-        GLFW.glfwSwapBuffers(Window.glHandle);
+        GLFW.glfwSwapBuffers(Window.windowId);
         GLFW.glfwPollEvents();
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     }
@@ -51,6 +52,14 @@ public final class Window {
     }
 
     public static boolean shouldClose() {
-        return GLFW.glfwWindowShouldClose(Window.glHandle);
+        return GLFW.glfwWindowShouldClose(Window.windowId);
+    }
+
+    public static void dispose() {
+        Callbacks.glfwFreeCallbacks(Window.windowId);
+        GLFW.glfwDestroyWindow(Window.windowId);
+
+        GLFW.glfwTerminate();
+        GLFW.glfwSetErrorCallback(null).free();
     }
 }
